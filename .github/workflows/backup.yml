@@ -2,9 +2,12 @@ name: Daily WordPress Scraper
 
 on:
   schedule:
-    # 每天北京时间中午 12:00 自动运行 (UTC 时间 4:00)
     - cron: '0 4 * * *'
-  workflow_dispatch: # 这个选项允许你在 GitHub 网页上随时手动点击运行
+  workflow_dispatch:
+
+# 🌟 必须加这一段，给机器人写入代码的权限
+permissions:
+  contents: write
 
 jobs:
   scrape-and-backup:
@@ -31,7 +34,10 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions Auto Backup"
           git config --global user.email "actions@github.com"
-          git add backup.html
-          # 如果网页内容相比昨天没有变化，就不会产生空提交报错
+          
+          # 🌟 这里把原来的 backup.html 改成了点（.），意思是把 backups 文件夹里所有的新文件都存起来
+          git add .
+          
+          # 检查是否有内容更新，有才提交
           git diff --quiet && git diff --staged --quiet || git commit -m "自动备份网页更新: $(date +'%Y-%m-%d')"
           git push
